@@ -1,0 +1,20 @@
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".write": "auth != null",
+        ".read": "auth != null && auth.token.email_verified == true"
+      },
+      ".indexOn": ["email"],
+      ".read": "auth != null && auth.token.email_verified == true && auth.token.email.matches(/.*@gmail.com$/)"
+    },
+    "contacts": {
+      ".write": "(auth != null && auth.token.email_verified == true && newData.exists()) || (auth != null && auth.token.email_verified == true && auth.token.email.matches(/.*@gmail.com$/))",
+      ".read": "auth != null && auth.token.email_verified == true && auth.token.email.matches(/.*@gmail.com$/)"
+    },
+    "locations": {
+      ".write": "(auth != null && auth.token.email_verified == true && newData.exists()) || (auth != null && auth.token.email_verified == true && auth.token.email.matches(/.*@gmail.com$/))",
+      ".read": "auth != null && auth.token.email_verified == true"
+    }
+  }
+}
