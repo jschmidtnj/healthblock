@@ -4,7 +4,6 @@ require("popper.js");
 require("bootstrap");
 window.$ = window.jQuery = jQuery;
 
-var FileSaver = require('file-saver');
 require("bootstrap-select");
 require("bootstrap-select/dist/css/bootstrap-select.css");
 
@@ -47,24 +46,16 @@ $(document).ready(function () {
     $('#helplink').attr('href', config.other.helpPageUrl);
 
 
-    function createValidation() {
-        $.validator.addMethod(
-            "regex",
-            function (value, element, regexp) {
-                var re = new RegExp(regexp, 'i');
-                return this.optional(element) || re.test(value);
-            },
-            ""
-        );
-
 
     var signed_in_initially = false;
-    firebase.auth().onAuthStateChanged(function (user) {
-      firebase.database.ref('users/' + user.uid).once('value').then(function(snapshot) {
-        var usertype = snapshot.usertype;
-        console.log(usertype);
 
-        if (usertype == "patient") {
+    firebase.auth().onAuthStateChanged(function (user) {
+        var ref = firebase.database().ref('users/' + user.uid);
+      ref.once('value').then(function(snapshot) {
+          console.log("snapshot", snapshot.val().usertype)
+        var usertype = snapshot.val().usertype;
+
+        if (usertype == "patient") { 
           console.log("Patient signed in");
             // User is signed in.
             //console.log("signed in");
@@ -83,8 +74,7 @@ $(document).ready(function () {
           $("#addContactSubmit").on('click touchstart', function () {
           });
           signed_in_initially = true;
-        } else {
-          /*
+        } /*else {
             // No user is signed in. redirect to login page:
             if (signed_in_initially) {
                 $('#alertsignoutsuccess').fadeIn();
@@ -108,8 +98,7 @@ $(document).ready(function () {
                 //fast redirect
                 // window.location.href = 'login.html';
             }
-            */
-        }
+        } */
       });
     });
 
