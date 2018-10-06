@@ -95,7 +95,7 @@ function signInGoogle() {
                 firebase.database().ref('users/' + userId).set({
                     name: name,
                     email: email,
-                    signintype: "gopprogle",
+                    signintype: "google",
                     notificationsettings: notificationsettingsData
                 }).then(function () {
                     //console.log("success - user signed in");
@@ -170,165 +170,225 @@ $(document).ready(function () {
 
     });
 
-    $("#registerForm").validate({
-        submitHandler: function () {
-            var formData = $("#registerForm").serializeArray();
-            //console.log(formData);
-            var secretKeyInput = formData[1].value.toString();
-            //console.log("sending submission email notification");
-            var checkSecretKey = firebase.functions().httpsCallable('checksecretkey');
-            checkSecretKey({
-                secretKey: secretKeyInput
-            }).then(function (result) {
-                // Read result of the Cloud Function.
-                //console.log(result);
-                var statusMessage = result.data.status;
-                //console.log(statusMessage);
-                if (statusMessage == "valid") {
-                    var fistandlast = formData[0].value.toString().split(" ");
-                    firebase.auth().createUserWithEmailAndPassword(formData[2].value, formData[3].value).then(function () {
-                        //save data to database
-                        var user = firebase.auth().currentUser;
-                        var name = formData[0].value.toString();
-                        var email = formData[2].value.toString();
-                        user.updateProfile({
-                            displayName: name,
-                            email: email
-                        }).then(function () {
-                            // Update successful.
-                            var userId = user.uid;
-                            var notificationsettingsData = {
-                                emailon: true
-                            };
-                            firebase.database().ref('users/' + userId).set({
-                                name: name,
-                                firstname: fistandlast[0],
-                                lastname: fistandlast.slice(1).join(' '),
-                                email: email,
-                                signintype: "email",
-                                notificationsettings: notificationsettingsData
-                            }).then(function () {
-                                user.sendEmailVerification().then(function () {
-                                    // Email sent.
-                                    //console.log("successfully registered!")
-                                    firebase.auth().signOut().then(function () {
-                                        //console.log('Signed Out');
-                                        $('#alertsuccessregistered').fadeIn();
-                                        setTimeout(function () {
-                                            $('#alertsuccessregistered').fadeOut();
-                                            setTimeout(function () {
-                                                //console.log("redirecting to login")
-                                                window.location.href = 'login.html';
-                                            }, config.other.redirecttimeout);
-                                        }, config.other.alerttimeout);
-                                    }).catch(function (error) {
-                                        //console.error('Sign Out Error', error);
-                                        handleError(error);
-                                    });
-                                }).catch(function (error) {
-                                    // An error happened.
-                                    handleError(error);
-                                });
-                            }).catch(function (error) {
-                                user.delete().then(function () {
-                                    firebase.auth().signOut().then(function () {
-                                        //console.log('Signed Out');
-                                        handleError({
-                                            code: "auth/bad-email-user",
-                                            message: "Email not permitted"
-                                        });
-                                    }, function (error) {
-                                        //console.error('Sign Out Error', error);
-                                        handleError(error);
-                                    });
-                                }, function (error) {
-                                    //console.error('Sign Out Error', error);
-                                    handleError(error);
-                                });
-                            });
+    var usertype = "";
+
+    function addUser(formData) {
+        var name = formData[0].value.toString();
+        var fistandlast = formData[0].value.toString().split(" ");
+        var email = formData[1].value.toString();
+        firebase.auth().createUserWithEmailAndPassword(email, formData[2].value).then(function () {
+            //save data to database
+            var user = firebase.auth().currentUser;
+            user.updateProfile({
+                displayName: name,
+                email: email
+            }).then(function () {
+                // Update successful.
+                var userId = user.uid;
+                firebase.database().ref('users/' + userId).set({
+                    name: name,
+                    firstname: fistandlast[0],
+                    lastname: fistandlast.slice(1).join(' '),
+                    email: email,
+                    signintype: "email",
+                    usertype: usertype
+                }).then(function () {
+                    user.sendEmailVerification().then(function () {
+                        // Email sent.
+                        //console.log("successfully registered!")
+                        firebase.auth().signOut().then(function () {
+                            //console.log('Signed Out');
+                            $('#alertsuccessregistered').fadeIn();
+                            setTimeout(function () {
+                                $('#alertsuccessregistered').fadeOut();
+                                setTimeout(function () {
+                                    //console.log("redirecting to login")
+                                    window.location.href = 'login.html';
+                                }, config.other.redirecttimeout);
+                            }, config.other.alerttimeout);
                         }).catch(function (error) {
-                            // An error happened.
+                            //console.error('Sign Out Error', error);
                             handleError(error);
                         });
                     }).catch(function (error) {
+                        // An error happened.
                         handleError(error);
                     });
-                } else {
-                    //console.log("invalid key");
-                    handleError({
-                        code: "auth/invalid-key",
-                        message: "Key not valid"
+                }).catch(function (error) {
+                    user.delete().then(function () {
+                        firebase.auth().signOut().then(function () {
+                            //console.log('Signed Out');
+                            handleError({
+                                code: "auth/bad-email-user",
+                                message: "Email not permitted"
+                            });
+                        }, function (error) {
+                            //console.error('Sign Out Error', error);
+                            handleError(error);
+                        });
+                    }, function (error) {
+                        //console.error('Sign Out Error', error);
+                        handleError(error);
                     });
-                }
+                });
             }).catch(function (error) {
-                // Getting the Error details.
-                //console.log(error);
+                // An error happened.
                 handleError(error);
             });
-        },
-        rules: {
-            fullname: {
-                required: true,
-                regex1: config.regex.fullname
-            },
-            secretKey: {
-                required: true
-            },
-            password: {
-                required: true,
-                minlength: 6,
-                maxlength: 15,
-                regex1: config.regex.passwordcontainsletter,
-                regex2: config.regex.passwordcontainsnumber,
-                regex3: config.regex.passwordcontainsspecialcharacter
-            },
-            confirm_password: {
-                required: true,
-                equalTo: "#password"
-            },
-            email: {
-                required: true,
-                regex1: config.regex.validemail
-            },
-            agree: "required"
-        },
-        messages: {
-            fullname: "Please enter your full name",
-            secretkey: {
-                required: "Please enter a secret key"
-            },
-            password: {
-                required: "Please provide a password",
-                minlength: "Your password must be at least 6 characters long",
-                maxlength: "Your password cannot exceed 15 characters",
-                regex1: "Your password must contain at least one alpha-numerical character",
-                regex2: "Your password must contain at least one digit (0-9)",
-                regex3: "Your password must contain at least one special character (!@#$%^&*)"
-            },
-            confirm_password: {
-                required: "Please provide a password",
-                equalTo: "Please enter the same password as above"
-            },
-            email: "Please enter a valid email address",
-            agree: "Please accept our privacy polity"
-        },
-        errorElement: "div",
-        errorPlacement: function (error, element) {
-            // Add the `invalid-feedback` class to the div element
-            error.addClass("invalid-feedback");
+        }).catch(function (error) {
+            handleError(error);
+        });
+    }
 
-            if (element.prop("type") === "checkbox") {
-                error.insertAfter(element.parent("label"));
+    function checkKey(formData, secretKey) {
+        //console.log("sending submission email notification");
+        var checkSecretKey = firebase.functions().httpsCallable('checksecretkey');
+        checkSecretKey({
+            secretKey: secretKey
+        }).then(function (result) {
+            // Read result of the Cloud Function.
+            //console.log(result);
+            var statusMessage = result.data.status;
+            //console.log(statusMessage);
+            if (statusMessage == "valid") {
+                addUser(formData, usertype);
             } else {
-                error.insertAfter(element);
+                //console.log("invalid key");
+                handleError({
+                    code: "auth/invalid-key",
+                    message: "Key not valid"
+                });
             }
-        },
-        highlight: function (element) {
-            $(element).addClass("is-invalid").removeClass("is-valid");
-        },
-        unhighlight: function (element) {
-            $(element).addClass("is-valid").removeClass("is-invalid");
+        }).catch(function (error) {
+            // Getting the Error details.
+            //console.log(error);
+            handleError(error);
+        });
+    }
+
+    function validateForm() {
+        $("#registerForm").validate({
+            rules: {
+                fullname: {
+                    required: true,
+                    regex1: config.regex.fullname
+                },
+                secretKey: {
+                    required: true
+                },
+                password: {
+                    required: true,
+                    minlength: 6,
+                    maxlength: 15,
+                    regex1: config.regex.passwordcontainsletter,
+                    regex2: config.regex.passwordcontainsnumber,
+                    regex3: config.regex.passwordcontainsspecialcharacter
+                },
+                confirm_password: {
+                    required: true,
+                    equalTo: "#password"
+                },
+                email: {
+                    required: true,
+                    regex1: config.regex.validemail
+                },
+                agree: "required"
+            },
+            messages: {
+                fullname: "Please enter your full name",
+                secretkey: {
+                    required: "Please enter a secret key"
+                },
+                password: {
+                    required: "Please provide a password",
+                    minlength: "Your password must be at least 6 characters long",
+                    maxlength: "Your password cannot exceed 15 characters",
+                    regex1: "Your password must contain at least one alpha-numerical character",
+                    regex2: "Your password must contain at least one digit (0-9)",
+                    regex3: "Your password must contain at least one special character (!@#$%^&*)"
+                },
+                confirm_password: {
+                    required: "Please provide a password",
+                    equalTo: "Please enter the same password as above"
+                },
+                email: "Please enter a valid email address",
+                agree: "Please accept our privacy polity"
+            },
+            errorElement: "div",
+            errorPlacement: function (error, element) {
+                // Add the `invalid-feedback` class to the div element
+                error.addClass("invalid-feedback");
+    
+                if (element.prop("type") === "checkbox") {
+                    error.insertAfter(element.parent("label"));
+                } else {
+                    error.insertAfter(element);
+                }
+            },
+            highlight: function (element) {
+                $(element).addClass("is-invalid").removeClass("is-valid");
+            },
+            unhighlight: function (element) {
+                $(element).addClass("is-valid").removeClass("is-invalid");
+            }
+        });
+    }
+
+    $("#submitData").on('click touchstart', function () {
+        if ($("#registerForm").valid()) {
+            var formData = $("#registerForm").serializeArray();
+            //console.log(formData);
+            if (usertype == "doctor" || usertype == "insurance") {
+                var secretKeyInput = formData[4].value.toString();
+                checkKey(formData, secretKeyInput);
+            } else {
+                addUser(formData);
+            }
+        } else {
+            console.log("form invalid");
         }
+    });
+
+    var expandedForm = 0; //collapsed = 0
+
+    $("#registerPatient").on('click touchstart', function () {
+        usertype = "patient";
+        if (expandedForm == 1) { //if it is mode 1 collapse
+            $("#expandForm").addClass("collapse");
+            expandedForm = 0;
+        } else {
+            $("#expandForm").removeClass("collapse");
+            expandedForm = 1;
+        }
+        $("#expandSecretKey").addClass("collapse");
+        expandedSecretKey = false;
+        validateForm();
+    });
+
+    $("#registerDoctor").on('click touchstart', function () {
+        usertype = "doctor";
+        if (expandedForm == 2) { //if it is mode 2 collapse
+            $("#expandForm").addClass("collapse");
+            expandedForm = 0;
+        } else {
+            $("#expandForm").removeClass("collapse");
+            expandedForm = 2;
+        }
+        $("#expandSecretKey").removeClass("collapse");
+        validateForm();
+    });
+
+    $("#registerInsurance").on('click touchstart', function () {
+        usertype = "insurance";
+        if (expandedForm == 3) { //if it is mode 3 collapse
+            $("#expandForm").addClass("collapse");
+            expandedForm = 0;
+        } else {
+            $("#expandForm").removeClass("collapse");
+            expandedForm = 3;
+        }
+        $("#expandSecretKey").removeClass("collapse");
+        validateForm();
     });
 
 });

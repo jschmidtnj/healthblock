@@ -163,25 +163,26 @@ $(document).ready(function () {
 
     var signed_in_initially = false;
     firebase.auth().onAuthStateChanged(function (user) {
-        if (user) {
+        if (user.usertype == "patient") {
             // User is signed in.
             //console.log("signed in");
             window.email = user.email;
             var testemail = new RegExp(config.regex.adminemailregex, 'g');
             $("#bodycollapse").removeClass("collapse");
             $("#patientDash").removeClass("collapse");
-            createValidation();
             $("#addContactSubmit").on('click touchstart', function () {
-                createContactSubmitForm();
             });
-            if (!(testemail.test(window.email))) {
-                //console.log("non-admin");
-            } else {
-                //console.log("admin");
-                createlocationSelect();
-            }
             signed_in_initially = true;
+        } else if (user){ //user.usertype == "doctor"
+          window.email = user.email;
+          var testemail = new RegExp(config.regex.adminemailregex, 'g');
+          $("#bodycollapse").removeClass("collapse");
+          $("#doctorDash").removeClass("collapse");
+          $("#addContactSubmit").on('click touchstart', function () {
+          });
+          signed_in_initially = true;
         } else {
+          /*
             // No user is signed in. redirect to login page:
             if (signed_in_initially) {
                 $('#alertsignoutsuccess').fadeIn();
@@ -205,6 +206,7 @@ $(document).ready(function () {
                 //fast redirect
                 // window.location.href = 'login.html';
             }
+            */
         }
     });
 
