@@ -1,2 +1,2 @@
 # healthblock
-A blockchain ERH application
+A blockchain EHR application
