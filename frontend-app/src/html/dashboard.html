@@ -3,17 +3,14 @@
 
 <head>
     <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-125093104-1"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-127099702-1"></script>
+  	<script>
+  	window.dataLayer = window.dataLayer || [];
+  	function gtag(){dataLayer.push(arguments);}
+  	gtag('js', new Date());
 
-        function gtag() {
-            dataLayer.push(arguments);
-        }
-        gtag('js', new Date());
-
-        gtag('config', 'UA-125093104-1');
-    </script>
+  	gtag('config', 'UA-127099702-1');
+  	</script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="title" content="Outlook Contacts">
@@ -142,7 +139,11 @@
                 <br />
                 <div id="doctorDash" class="collapse">
                   <div class="row justify-content-center">
-                    
+                    <h5>Request Data</h5>
+                    <form id="getPatientData" method="get">
+                      <label for="patientId">Patient ID</label>
+                      <input type="text" class="form-control" id="patientId" name="patientId"></input>
+                    </form>
                   </div>
                 </div>
                 <div class="collapse display: inline-block" id="downloadSelectCollapse">
