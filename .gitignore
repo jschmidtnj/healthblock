@@ -75,7 +75,6 @@ typings/
 # Secret file
 config.js
 config.json
-config/
 
 # firebase stuff
 .firebase/
