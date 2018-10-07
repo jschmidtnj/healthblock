@@ -1,7 +1,7 @@
 {
-    "name": "Outlook Contacts",
-    "short_name": "Contacts",
-    "description": "application for managing contacts",
+    "name": "datacare",
+    "short_name": "datacare",
+    "description": "application for blockchain healthcare",
     "start_url": "/index.html",
     "scope": ".",
     "background_color": "#EEE",

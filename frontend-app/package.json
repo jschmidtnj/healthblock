@@ -1,9 +1,9 @@
 {
-    "name": "contactsapp",
+    "name": "datacare",
     "version": "1.0.0",
     "description": "This application is created with Firebase, Bootstrap, Vuejs, jQuery, and vanilla html for outlook contact management.",
     "private": true,
-    "repository": "https://github.com/jschmidtnj/OutlookContacts.git",
+    "repository": "https://github.com/jschmidtnj/healthblock.git",
     "author": "Joshua Schmidt",
     "license": "MIT",
     "scripts": {
@@ -11,7 +11,10 @@
         "build": "rm -rf dist && webpack && cp -a src/assets/css dist/assets && cp -a src/html/. dist/ && cp -a src/assets/icons dist/assets && cp -a src/assets/images dist/assets && cp -a src/config dist && cp dist/assets/js/pwa/serviceworker.js dist/serviceworker.js"
     },
     "keywords": [
-        "contacts",
+        "data",
+        "blockchain",
+        "healthcare",
+        "health",
         "nodejs",
         "webpack",
         "vuejs",

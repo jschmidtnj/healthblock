@@ -4,7 +4,7 @@ This application is created with Firebase, Bootstrap, Vuejs, jQuery, and vanilla
 
 ## generate static distribution files
 
-First clone the repository (it works best in linux): `git clone --recursive https://<github-account-name>:<github-account-token>@github.com/jschmidtnj/outlookcontacts.git && git submodule add --force ../outlookcontacts.wiki.git wiki && cd wiki && git pull origin master && cd .. && ls`.  
+First clone the repository (it works best in linux): `git clone --recursive https://<github-account-name>:<github-account-token>@github.com/jschmidtnj/healthblock.git && git submodule add --force ../healthblock.wiki.git wiki && cd wiki && git pull origin master && cd .. && ls`.  
 Then install [yarn](https://yarnpkg.com/lang/en/docs/install/#debian-stable).  
 Run `yarn` in the main directory.  
 Finally `dist/index.html` in a web-browser and make sure the splash page works.  
@@ -53,7 +53,7 @@ Navigate [here](https://analytics.google.com/analytics/web/provision). Sign up w
 
 ## add cloud functions
 
-There are a few cloud functions used in this project to provide email notifications and manage users and contacts. They are found in the `functions/index.js` file. Run `firebase deploy --only functions` to deploy all of the functions. See below for cronjob information.
+There are a few cloud functions used in this project to provide email notifications and manage users. They are found in the `functions/index.js` file. Run `firebase deploy --only functions` to deploy all of the functions. See below for cronjob information.
 
 ## add Cronjob to accountcleanup cloud function
 
