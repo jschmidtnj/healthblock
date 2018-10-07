@@ -3,17 +3,14 @@
 
 <head>
     <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-125093104-1"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-127099702-1"></script>
+  	<script>
+  	window.dataLayer = window.dataLayer || [];
+  	function gtag(){dataLayer.push(arguments);}
+  	gtag('js', new Date());
 
-        function gtag() {
-            dataLayer.push(arguments);
-        }
-        gtag('js', new Date());
-
-        gtag('config', 'UA-125093104-1');
-    </script>
+  	gtag('config', 'UA-127099702-1');
+  	</script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="title" content="Outlook Contacts">
@@ -105,68 +102,81 @@
             <br />
             <div id="bodycollapse" class="collapse">
                 <br />
-                <h5>Add Contact</h5>
                 <br />
-                <div id="addContactCollapse" class="collapse">
-                    <form id="addContactForm" method="post" action="">
-                        <div class="row justify-content-center">
-                            <div class="col-3">
-                                <label class="control-label" for="firstname">First Name</label>
-                                <input type="text" class="form-control" id="firstname" name="firstname" />
-                            </div>
-                            <div class="col-3">
-                                <label class="control-label" for="lastname">Last Name</label>
-                                <input type="text" class="form-control" id="lastname" name="lastname" />
-                            </div>
-                            <div class="col-3">
-                                <label class="control-label" for="email">Email Address</label>
-                                <input type="text" class="form-control" id="email" name="email" />
-                            </div>
-                            <div class="col-3">
-                                <label class="control-label" for="companyname">Company Name</label>
-                                <input type="text" class="form-control" id="companyname" name="companyname" />
-                            </div>
-                        </div>
-                        <div class="row justify-content-center">
-                            <div class="col-3">
-                                <label class="control-label" for="Home Country">Home Street</label>
-                                <input type="text" class="form-control" id="homestreet" name="Home Country" />
-                            </div>
-                            <div class="col-3">
-                                <label class="control-label" for="homecity">Home City</label>
-                                <input type="text" class="form-control" id="homecity" name="homecity" />
-                            </div>
-                            <div class="col-3">
-                                <label class="control-label" for="homestate">Home State</label>
-                                <input type="text" class="form-control" id="homestate" name="homestate" />
-                            </div>
-                            <div class="col-3">
-                                <label class="control-label" for="homepostalcode">Home Postal Code</label>
-                                <input type="text" class="form-control" id="homepostalcode" name="homepostalcode" />
-                            </div>
-                            <div class="col-3">
-                                <label class="control-label" for="homecountry">Home Country</label>
-                                <input type="text" class="form-control" id="homecountry" name="homecountry" />
-                            </div>
-                        </div>
-                        <div class="row justify-content-center">
-                            <label class="control-label" for="notes">Notes</label>
-                            <textarea type="text" class="form-control" rows="5" id="notes" name="notes"></textarea>
-                        </div>
-                    </form>
+                <div id="patientDash" class="collapse">
+                  <div class="row justify-content-center">
+                    <label for="notifications">Notifications</label>
+                    <table class="table" id="notifications" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Requester</th>
+                                <th>Approve</th>
+                                <th>Reject</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Dr. Name</td>
+                                <td><button id="approve1" class="btn btn-primary">Approve</button></td>
+                                <td><button id="reject1" class="btn btn-primary">Reject</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                  </div>
                     <br />
                     <br />
-                    <div class="row justify-content-center">
-                        <div class="col-sm-2">
-                            <button id="addContactSubmit" type="addContact" value="addContact" class="btn btn-primary btn-block onclick="
-                                void(0) "">
-                                Submit
-                            </button>
-                        </div>
-                    </div>
+                  <div class="row justify-content-center">
+                    <label for="ehr">Health Record</label>
+                    <table id="ehr" class="table" style="width:100%">
+                      <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Data</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                            <td>Heart Rate</td>
+                            <td>90 bpm</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-                <br />
-                <br />
+                <!--Doctor Dashboard-->
+                <div id="doctorDash" class="collapse">
+                  <h5>Request Data</h5>
+                  <div class="row justify-content-center">
+                    <div id="patientFormDiv">
+                        <form id="getPatientData" method="get">
+                            <label for="patientId">Patient ID</label>
+                            <input type="text" class="form-control" id="patientId" name="patientId" />
+                        </form>
+                        <button id="submitDataRequest" class="btn btn-primary">Submit</button>
+                    </div>
+                  </div>
+                  <div class="row justify-content-center">
+                    <div id="ehrFormDiv">
+                        <form id="ehrForm" method="get">
+                            <label for="patientID">Patient ID</label>
+                            <input type="text" class="form-control" id="patientID" name="patientID"/>
+                            <label for="name">Name</label>
+                            <input type="text" class="form-control" id="name" name="name"/>
+                            <label for="age">Age</label>
+                            <input type="text" class="form-control" id="age" name="age"/>
+                            <label for="prescription">Prescription</label>
+                            <input type="text" class="form-control" id="prescription" name="prescription"/>
+                            <label for="diagnosis">Diagnosis</label>
+                            <input type="text" class="form-control" id="diagnosis" name="diagnosis"/>
+                            <label for="notes">Notes</label>
+                            <input type="text" class="form-control" id="notes" name="notes"/>
+                            <label for="other">Other</label>
+                            <input type="text" class="form-control" id="other" name="other"/>
+                        </form>
+                        <button id="submitEhr" class="btn btn-primary">Submit</button>
+                    </div>
+                  </div>
+                </div>
                 <div class="collapse display: inline-block" id="downloadSelectCollapse">
                     <p>Download</p>
                 </div>
