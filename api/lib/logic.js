@@ -28,13 +28,17 @@ function ChangeInsurance(changeInsurance) {
 * @transaction
 */
 function RemoveDoctorViewAccess(doctorView) {
-    var doctorAccessIndex = doctorView.patient.doctorAccess.indexOf(doctorView.doctor);
-    if (doctorAccessIndex > -1) {
-        doctorView.patient.doctorAccess.splice(doctorAccessIndex, 1);
+    if (doctorView.patient.doctorAccess.length != 0) {
+        var doctorAccessIndex = doctorView.patient.doctorAccess.indexOf(doctorView.doctor);
+        if (doctorAccessIndex > -1) {
+            doctorView.patient.doctorAccess.splice(doctorAccessIndex, 1);
+        }
     }
-    var doctorPatientsIndex = doctorView.doctor.patients.indexOf(doctorView.patient);
-    if (doctorPatientsIndex > -1) {
-        doctorView.doctor.patients.splice(doctorAccessIndex, 1);
+    if (doctorView.doctor.patients.length != 0) {
+        var doctorPatientsIndex = doctorView.doctor.patients.indexOf(doctorView.patient);
+        if (doctorPatientsIndex > -1) {
+            doctorView.doctor.patients.splice(doctorAccessIndex, 1);
+        }
     }
     return getParticipantRegistry('api.Patient')
         .then(function (patientRegistry) {
