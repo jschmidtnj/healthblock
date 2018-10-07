@@ -63,12 +63,15 @@ $(document).ready(function () {
                     $("#patientDash").removeClass("collapse");
                     firebase.database().ref("requests/").once('value').then(function (snapshot) {
                         snapshot.forEach(function (childSnapshot) {
-                            if (childSnapshot.val().patientID == window.user.uid) {
+                            var patientId = childSnapshot.val().patientID;
+                            if (patientId == window.user.uid) {
                                 console.log(childSnapshot.val())
                                 var doctor = childSnapshot.val().doctor;
                                 $("#notificationsBody").append(
-                                    "<tr><td>" + doctor + "</td><td><button id='approve1' class='btn btn-primary'>Accept</button></td><td><button id='reject1' class='btn btn-primary'>Reject</button></td></tr>"
-                                )
+                                    "<tr><td>" + doctor + "</td><td><button id=\"" + patientId
+                                     + "\" class='accept btn btn-primary'>Accept</button></td>" + 
+                                     "<td><button id=\"" + patientId + "\" class='reject btn btn-primary'>Reject</button></td></tr>"
+                                );
                             }
                         })
                     })
@@ -116,9 +119,9 @@ $("#logoutButton").on('click touchstart', function () {
 });
 
 //events for approve and reject buttons
-$("#notifications").on("click", "#approve1", function (event) {
+$(".approve").on("click touchstart", function (event) {
     event.preventDefault();
-    var parent = $(event.target.hash).parent()
+    
     console.log("approve")
 })
 
