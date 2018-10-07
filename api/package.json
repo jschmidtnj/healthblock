@@ -2,10 +2,11 @@
   "engines": {
     "composer": "^0.20.1"
   },
-  "name": "api28",
+  "name": "api2",
   "version": "0.0.1",
   "description": "Main Blockchain Database API",
   "scripts": {
+    "start": "composer-rest-server -c admin@api2 -n always -u true -w true && (cd admin-frontend && npm start) && wait",
     "prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/api.bna",
     "pretest": "npm run lint",
     "lint": "eslint .",
