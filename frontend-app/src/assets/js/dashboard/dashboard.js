@@ -110,4 +110,25 @@ $(document).ready(function () {
             handleError(error);
         });
     });
+
+//events for approve and reject buttons
+    $("#notifications").on("click", "#approve1", function(event){
+        event.preventDefault();
+        console.log("approve clicked")
+    })
+
+    $("#notifications").on("click", "#reject1", function(event){
+        event.preventDefault();
+        console.log("reject clicked")
+    })
+
+//events for doctor get data
+    $("#submitDataRequest").on("click", function(event){
+        event.preventDefault();
+        var patientID = $("#getPatientData").serializeArray()[0].value;
+        firebase.database().ref('users/' + patientID).once('value').then(function(snapshot){
+            var patient = snapshot.val()
+            console.log("patient", patient)
+        })
+    })
 });

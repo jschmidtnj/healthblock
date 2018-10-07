@@ -106,44 +106,54 @@
                 <div id="patientDash" class="collapse">
                   <div class="row justify-content-center">
                     <label for="notifications">Notifications</label>
-                    <table id="notifications" style="width:100%">
-                      <tr>
-                        <th>Requester</th>
-                        <th>Approve</th>
-                        <th>Reject</th>
-                      </tr>
-                      <tr>
-                        <td>Dr. Name</td>
-                        <td><button class="approve">Approve</button></td>
-                        <td><button class="reject">Reject</button></td>
-                      </tr>
+                    <table class="table" id="notifications" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Requester</th>
+                                <th>Approve</th>
+                                <th>Reject</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Dr. Name</td>
+                                <td><button id="approve1" class="btn btn-primary">Approve</button></td>
+                                <td><button id="reject1" class="btn btn-primary">Reject</button></td>
+                            </tr>
+                        </tbody>
                     </table>
                   </div>
                     <br />
                     <br />
                   <div class="row justify-content-center">
                     <label for="ehr">Health Record</label>
-                    <table id="ehr" style="width:100%">
-                      <tr>
-                        <th>Category</th>
-                        <th>Data</th>
-                      </tr>
-                      <tr>
-                        <td>Category</td>
-                        <td>Data</td>
-                      </tr>
+                    <table id="ehr" class="table" style="width:100%">
+                      <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Data</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                            <td>Heart Rate</td>
+                            <td>90 bpm</td>
+                        </tr>
+                      </tbody>
                     </table>
                   </div>
                 </div>
-                <br />
-                <br />
+                <!--Doctor Dashboard-->
                 <div id="doctorDash" class="collapse">
+                  <h5>Request Data</h5>
                   <div class="row justify-content-center">
-                    <h5>Request Data</h5>
-                    <form id="getPatientData" method="get">
-                      <label for="patientId">Patient ID</label>
-                      <input type="text" class="form-control" id="patientId" name="patientId"></input>
-                    </form>
+                    <div>
+                        <form id="getPatientData" method="get">
+                        <label for="patientId">Patient ID</label>
+                        <input type="text" class="form-control" id="patientId" name="patientId"></input>
+                        </form>
+                        <button id="submitDataRequest" class="btn btn-primary">Submit</button>
+                    </div>
                   </div>
                 </div>
                 <div class="collapse display: inline-block" id="downloadSelectCollapse">
