@@ -143,5 +143,22 @@ $(document).ready(function () {
                 console.log("request sent");
             })
         })
+    });
+//submit ehr form
+    $("#submitEhr").on("click", function(event){
+        event.preventDefault();
+        var ehrData = $("#ehrForm").serializeArray()
+        console.log(ehrData);
+        var ehr = firebase.database().ref('ehr/' + ehrData[0].value);
+        var sendEhr = ehr.push({
+            name: ehrData[1].value,
+            age: ehrData[2].value,
+            prescription: ehrData[3].value,
+            diagnosis: ehrData[4].value,
+            notes: ehrData[5].value,
+            other: ehrData[6].value
+        })
+        sendEhr;
+        console.log(sendEhr, "ehr sent")
     })
 });
