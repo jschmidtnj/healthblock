@@ -60,23 +60,25 @@ $(document).ready(function () {
           console.log("Patient signed in");
             // User is signed in.
             //console.log("signed in");
-            window.email = user.email;
-            var testemail = new RegExp(config.regex.adminemailregex, 'g');
             $("#bodycollapse").removeClass("collapse");
             $("#patientDash").removeClass("collapse");
             signed_in_initially = true;
             firebase.database().ref("requests/").once('value').then(function(snapshot){
-               var values = snapshot.val()
-               var keys = [Object.keys(values)]
-               var keyValues = []
-               $.each(keys, function(index, value){
-                keyValues.push(value)
-               })
-               $.each()
-                console.log("keys", keyValues[0])
+                snapshot.forEach(function(childSnapshot){
+                    if (childSnapshot.val().patientID == window.user.uid){
+                        console.log(childSnapshot.val())
+                        var doctor = childSnapshot.val().doctor;
+                        $("#notificationsBody").append(
+                            "<tr><td>" + doctor + "</td><td><button id='approve1' class='btn btn-primary'>Accept</button></td><td><button id='reject1' class='btn btn-primary'>Reject</button></td></tr>"
+                        )
+                    }
+                })
+
+               
+                
             })
             
-        } else if (usertype == "doctor"){ //user.usertype == "doctor"
+        } else if (usertype == "doctor"){ 
           window.email = user.email;
           var testemail = new RegExp(config.regex.adminemailregex, 'g');
           $("#bodycollapse").removeClass("collapse");
@@ -122,12 +124,14 @@ $(document).ready(function () {
 //events for approve and reject buttons
     $("#notifications").on("click", "#approve1", function(event){
         event.preventDefault();
-        console.log("approve clicked")
+        var parent = $(event.target.hash).parent()
+        console.log(parent)
     })
 
     $("#notifications").on("click", "#reject1", function(event){
         event.preventDefault();
-        console.log("reject clicked")
+        var parent = $(event.target).parent()
+        console.log(parent)
     })
 
 //event for doctor request data
