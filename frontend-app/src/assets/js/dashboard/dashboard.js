@@ -50,6 +50,7 @@ $(document).ready(function () {
     var signed_in_initially = false;
 
     firebase.auth().onAuthStateChanged(function (user) {
+        window.user = user
         var ref = firebase.database().ref('users/' + user.uid);
       ref.once('value').then(function(snapshot) {
           console.log("snapshot", snapshot.val().usertype)
@@ -122,13 +123,25 @@ $(document).ready(function () {
         console.log("reject clicked")
     })
 
-//events for doctor get data
+//event for doctor request data
     $("#submitDataRequest").on("click", function(event){
         event.preventDefault();
         var patientID = $("#getPatientData").serializeArray()[0].value;
         firebase.database().ref('users/' + patientID).once('value').then(function(snapshot){
-            var patient = snapshot.val()
-            console.log("patient", patient)
+            var patient = snapshot.val();
+            console.log("patient", patient);
+            console.log(window.user.uid);
+            firebase.database().ref('users/' + window.user.uid).once('value').then(function(snapshot1){
+                var doctorName = snapshot1.val().name;
+                console.log("patientID", patientID);
+                var requests = firebase.database().ref('requests/');
+                var sendRequests = requests.push({
+                    patientID: patientID,
+                    doctor: doctorName
+                });
+                sendRequests;
+                console.log("request sent");
+            })
         })
     })
 });
