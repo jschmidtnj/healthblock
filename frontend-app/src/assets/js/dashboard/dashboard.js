@@ -64,16 +64,23 @@ $(document).ready(function () {
             var testemail = new RegExp(config.regex.adminemailregex, 'g');
             $("#bodycollapse").removeClass("collapse");
             $("#patientDash").removeClass("collapse");
-            $("#addContactSubmit").on('click touchstart', function () {
-            });
             signed_in_initially = true;
+            firebase.database().ref("requests/").once('value').then(function(snapshot){
+               var values = snapshot.val()
+               var keys = [Object.keys(values)]
+               var keyValues = []
+               $.each(keys, function(index, value){
+                keyValues.push(value)
+               })
+               $.each()
+                console.log("keys", keyValues[0])
+            })
+            
         } else if (usertype == "doctor"){ //user.usertype == "doctor"
           window.email = user.email;
           var testemail = new RegExp(config.regex.adminemailregex, 'g');
           $("#bodycollapse").removeClass("collapse");
           $("#doctorDash").removeClass("collapse");
-          $("#addContactSubmit").on('click touchstart', function () {
-          });
           signed_in_initially = true;
         } /*else {
             // No user is signed in. redirect to login page:
