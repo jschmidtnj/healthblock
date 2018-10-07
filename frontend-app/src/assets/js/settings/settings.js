@@ -43,22 +43,22 @@ function handleError(error) {
 
 var tableInitialized = false;
 
-function createLocationTable() {
+function createDoctorTable() {
     var ranonce = false;
 
     if (tableInitialized) {
-        $('#locationlist').DataTable().destroy();
+        $('#doctorlist').DataTable().destroy();
         tableInitialized = false;
     }
 
     function generateDatatable() {
         if (!(ranonce)) {
-            $("#nolocationswarning").removeClass("collapse");
-            $("#locationlistcollapse").addClass("collapse");
+            $("#nodoctorswarning").removeClass("collapse");
+            $("#doctorlistcollapse").addClass("collapse");
             $("#selectactions").addClass("collapse");
         } else {
             if (!(tableInitialized)) {
-                $('#locationlist').DataTable({
+                $('#doctorlist').DataTable({
                     responsive: true,
                     select: {
                         style: 'multi'
@@ -68,29 +68,25 @@ function createLocationTable() {
             }
         }
     }
-    firebase.database().ref('locations').limitToLast(config.other.locationviewmax).once('value').then(function (locations) {
-        var numlocations = locations.numChildren();
-        var countlocations = 0;
-        locations.forEach(function (location) {
-            countlocations++;
-            var locationId = location.key;
+    firebase.database().ref('users/' + window.userId + '/doctors/').limitToLast(config.other.doctorviewmax).once('value').then(function (doctors) {
+        var numdoctors = doctors.numChildren();
+        var countdoctors = 0;
+        doctors.forEach(function (doctor) {
+            countdoctors++;
+            var doctorId = doctor.key;
             //console.log(formId);
-            var locationData = location.val();
-            var locationName = locationData.name;
-            var utctime = new Date(locationData.lastdownloaddate);
-            var lastdownloaddate = utctime.toString();
-            var numcontacts = locationData.numcontacts;
-            $('#locationdata').append("<tr><td>" + locationName + "</td><td>" + lastdownloaddate +
-                "</td><td>" + numcontacts + "</td><td><button value=\"" + locationId +
-                "\" class=\"locationDelete btn btn-primary btn-block onclick=\"" +
+            var doctordata = doctor.val();
+            var doctorName = doctordata.name;
+            $('#doctordata').append("<tr><td>" + doctorName + "</td><td><button value=\"" + doctorId +
+                "\" class=\"doctorDelete btn btn-primary btn-block onclick=\"" +
                 "void(0)\"\">Delete</button></td></tr>");
             if (!(ranonce)) {
                 ranonce = true;
-                $("#nolocationswarning").addClass("collapse");
-                $("#locationlistcollapse").removeClass("collapse");
+                $("#nodoctorswarning").addClass("collapse");
+                $("#doctorlistcollapse").removeClass("collapse");
                 $("#selectactions").removeClass("collapse");
             }
-            if (countlocations == numlocations) {
+            if (numdoctors == countdoctors) {
                 generateDatatable();
             }
         });
@@ -110,21 +106,7 @@ function getInitialValues() {
         $("#fullname").val(name);
         var username = userDataVal.username;
         $("#username").val(username);
-        if (window.userstatus == "admin") {
-            //console.log("admin");
-            var emailnotificationssetting = userDataVal.notificationsettings.emailon;
-            if (emailnotificationssetting) {
-                $("#emailnotificationslabel").text("On");
-                $("#emailnotifications").prop('checked', true);
-            } else {
-                $("#emailnotificationslabel").text("Off");
-                $("#emailnotifications").prop('checked', false);
-            }
-            $("#changeLocationsCollapse").removeClass("collapse");
-            createLocationTable();
-        } else if (window.userstatus == "nonadmin") {
-            //console.log("nonadmin");
-        }
+        createDoctorTable();
     }).catch(function (err) {
         handleError(err);
     });
@@ -144,12 +126,6 @@ $(document).ready(function () {
             // User is signed in.
             //console.log("signed in");
             signed_in_initially = true;
-            var testemail = new RegExp(config.regex.adminemailregex, 'g');
-            if (testemail.test(window.email)) {
-                window.userstatus = "admin";
-            } else {
-                window.userstatus = "nonadmin";
-            }
             $(".logoutButton").on('click touchstart', function () {
                 firebase.auth().signOut().then(function () {
                     // Sign-out successful.
@@ -160,31 +136,7 @@ $(document).ready(function () {
             });
             $("#email").text(window.email);
             $("#bodycollapse").removeClass("collapse");
-            if (window.userstatus == "admin") {
-                $("#changeNotificationsCollapse").removeClass("collapse");
-                $("#emailnotifications").change(function () {
-                    //console.log("changing approve notification setting");
-                    var checked = this.checked;
-                    if (checked) {
-                        //console.log("check");
-                        data = true;
-                    } else {
-                        //console.log("uncheck");
-                        data = false;
-                    }
-                    var notificationsettingsData = {
-                        emailon: checked
-                    };
-                    firebase.database().ref('users/' + window.userId).update({
-                        notificationsettings: notificationsettingsData
-                    }).catch(function (err) {
-                        handleError(err);
-                    });
-                    $("#emailnotificationslabel").text(checked ? "On" : "Off");
-                });
-            } else if (window.userstatus == "nonadmin") {
-                $("#changeNotificationsCollapse").addClass("collapse");
-            }
+            $("#changeDoctorsCollapse").removeClass("collapse");
             getInitialValues();
             //console.log(window.userstatus);
             //console.log(window.userId);
@@ -227,75 +179,36 @@ $(document).ready(function () {
         }
     });
 
-    function addLocation() {
-        if ($("#addLocation").valid()) {
-            //console.log("location valid");
-            var formData = $("#addLocation").serializeArray();
-            //console.log(formData);
-            var contactId = firebase.database().ref().child('functions').push().key;
-            var locationName = formData[0].value.toString();
-            var dateTime = Date.now();
-            firebase.database().ref('locations/' + contactId).set({
-                lastdownloaddate: dateTime,
-                numcontacts: 0,
-                name: locationName
-            }).then(function () {
-                // Update successful.
-                //console.log("update success");
-                $('#alertlocationadded').fadeIn();
-                setTimeout(function () {
-                    $('#alertlocationadded').fadeOut();
-                }, config.other.alerttimeout);
-                $('#addLocation')[0].reset();
-                $("#locationdata").remove();
-                $("#locationlist").append("<tbody id=\"locationdata\"></tbody>");
-                createLocationTable();
-            }).catch(function (error) {
-                // An error happened.
-                handleError(error);
-            });
-        }
-    }
-    $("#locationname").keypress(function (event) {
-        if (event.which == '13') {
-            event.preventDefault();
-            addLocation();
-        }
-    });
 
-    $("#addLocationSubmit").on('click touchstart', function () {
-        addLocation();
-    });
-
-    $(document).on('click touchstart', ".locationDelete", function () {
+    $(document).on('click touchstart', ".doctorDelete", function () {
         var valueArray = $(this).attr('value').split(',');
-        var locationKey = valueArray[0];
+        var doctorKey = valueArray[0];
         var started = false;
 
-        function deleteLocation(locationKey) {
+        function doctorlist(doctorKey) {
             //console.log("delete the form");
-            firebase.database().ref('locations/' + locationKey).remove().then(function () {
-                $("#locationdata").remove();
-                $("#locationlist").append("<tbody id=\"locationdata\"></tbody>");
+            firebase.database().ref('users/' + window.userId + '/doctors/' + doctorKey).remove().then(function () {
+                $("#doctordata").remove();
+                $("#doctorlist").append("<tbody id=\"doctordata\"></tbody>");
                 setTimeout(function () {
-                    $('#alertconfirmdeletelocation').fadeOut();
+                    $('#alertconfirmdeletedoctor').fadeOut();
                 }, config.other.alerttimeout);
-                createLocationTable();
+                createDoctorTable();
             }).catch(function (error) {
                 handleError(error);
             });
         }
 
-        $('#alertconfirmdeletelocation').fadeIn();
-        $("#cancelDeleteLocation").on('click touchstart', function () {
+        $('#alertconfirmdeletedoctor').fadeIn();
+        $("#cancelDeleteDoctor").on('click touchstart', function () {
             if (!started) {
-                $('#alertconfirmdeletelocation').fadeOut();
+                $('#alertconfirmdeletedoctor').fadeOut();
                 started = true;
             }
         });
-        $("#confirmDeleteLocation").on('click touchstart', function () {
+        $("#confirmDeleteDoctor").on('click touchstart', function () {
             if (!started) {
-                deleteLocation(locationKey);
+                doctorlist(doctorKey);
                 started = true;
             }
         });
@@ -456,29 +369,6 @@ $(document).ready(function () {
         },
         ""
     );
-
-    $("#addLocation").validate({
-        rules: {
-            locationname: {
-                required: true
-            }
-        },
-        messages: {
-            fullname: "Please enter a location name"
-        },
-        errorElement: "div",
-        errorPlacement: function (error, element) {
-            // Add the `invalid-feedback` class to the div element
-            error.addClass("invalid-feedback");
-            error.insertAfter(element);
-        },
-        highlight: function (element) {
-            $(element).addClass("is-invalid").removeClass("is-valid");
-        },
-        unhighlight: function (element) {
-            $(element).addClass("is-valid").removeClass("is-invalid");
-        }
-    });
 
     $("#changeName").validate({
         rules: {
