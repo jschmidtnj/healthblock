@@ -24,8 +24,8 @@ o String timestamp
 o String usertype
 o String userid
 }
-asset EHR identified by ehrID {
-o String ehrID
+asset EHR identified by ehrId {
+o String ehrId
 o String patientId
 o Integer age
 o String prescription

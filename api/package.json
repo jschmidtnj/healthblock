@@ -2,7 +2,7 @@
   "engines": {
     "composer": "^0.20.1"
   },
-  "name": "api17",
+  "name": "api28",
   "version": "0.0.1",
   "description": "Main Blockchain Database API",
   "scripts": {

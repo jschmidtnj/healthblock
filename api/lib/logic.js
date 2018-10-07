@@ -28,27 +28,27 @@ function ChangeInsurance(changeInsurance) {
 * @transaction
 */
 function RemoveDoctorViewAccess(doctorView) {
-    if (doctorView.patient.doctorAccess.length != 0) {
-        var doctorAccessIndex = doctorView.patient.doctorAccess.indexOf(doctorView.doctor);
-        if (doctorAccessIndex > -1) {
-            doctorView.patient.doctorAccess.splice(doctorAccessIndex, 1);
-        }
-    }
-    if (doctorView.doctor.patients.length != 0) {
-        var doctorPatientsIndex = doctorView.doctor.patients.indexOf(doctorView.patient);
-        if (doctorPatientsIndex > -1) {
-            doctorView.doctor.patients.splice(doctorAccessIndex, 1);
-        }
-    }
-    return getParticipantRegistry('api.Patient')
-        .then(function (patientRegistry) {
-            return patientRegistry.update(doctorView.patient);
-        })
-        .then(function () {
-            return getParticipantRegistry('api.Doctor');
-        })
+    return getParticipantRegistry('api.Doctor')
         .then(function (doctorRegistry) {
-            return doctorRegistry.update(doctorView.doctor);
+            var doctorIdStr = doctorView.doctorInfo.doctorIdStr;
+            return doctorRegistry.get(doctorIdStr);
+        }).then(function (doctor) {
+            var doctorPatientsIndex = doctor.patients.indexOf(doctorView.patient);
+            if (doctorPatientsIndex > -1) {
+                doctor.patients.splice(doctorPatientsIndex, 1);
+            }
+            return getParticipantRegistry('api.Doctor')
+            .then(function (docReg) {
+                return docReg.update(doctor);
+            }).then(function () {
+                return getParticipantRegistry('api.Patient');
+            }).then(function (patientRegistry) {
+                var patientDoctorIndex = doctorView.patient.doctors.indexOf(doctorView.doctorInfo);
+                if (patientDoctorIndex > -1) {
+                    doctorView.patient.doctors.splice(patientDoctorIndex, 1);
+                }
+                return patientRegistry.update(doctorView.patient);
+            });
         });
 }
 
@@ -58,66 +58,21 @@ function RemoveDoctorViewAccess(doctorView) {
 * @transaction
 */
 function AddDoctorViewAccess(doctorView) {
-    if (!(doctorView.patient.doctorAccess.includes(doctorView.doctor))) {
-        doctorView.patient.doctorAccess.push(doctorView.doctor);
-    }
-    if (!(doctorView.doctor.patients.includes(doctorView.patient))) {
+    if (doctorView.doctor.patients.indexOf(doctorView.patient) < 0) {
         doctorView.doctor.patients.push(doctorView.patient);
     }
-    return getParticipantRegistry('api.Patient')
-        .then(function (patientRegistry) {
-            return patientRegistry.update(doctorView.patient);
-        })
-        .then(function () {
-            return getParticipantRegistry('api.Doctor');
-        })
+    console.log("test1");
+    return getParticipantRegistry('api.Doctor')
         .then(function (doctorRegistry) {
             return doctorRegistry.update(doctorView.doctor);
+        }).then(function () {
+            return getParticipantRegistry('api.Patient');
+        }).then(function (patientRegistry) {
+            if (doctorView.patient.doctors.indexOf(doctorView.doctor.doctorInfo) < 0) {
+                doctorView.patient.doctors.push(doctorView.doctor.doctorInfo);
+            }
+            return patientRegistry.update(doctorView.patient);
         });
-}
-
-/**
-* Sample transaction
-* @param {api.PatientViewPatientData} PatientViewPatientData
-* @transaction
-*/
-function PatientViewPatientData(patientData) {
-    return getAssetRegistry('api.EHR')
-        .then(function (ehrRegistry) {
-            return ehrRegistry.get(patientData.patient.ehr);
-        });
-}
-
-/**
-* Sample transaction
-* @param {api.DoctorViewPatientData} DoctorViewPatientData
-* @transaction
-*/
-function DoctorViewPatientData(doctorPatientData) {
-    if (doctorPatientData.doctor.patients.includes(doctorPatientData.patient)) {
-        return getAssetRegistry('api.EHR')
-            .then(function (ehrRegistry) {
-                return ehrRegistry.get(doctorPatientData.patient.ehr);
-            });
-    } else {
-        throw new Error("Access Denied");
-    }
-}
-
-/**
-* Sample transaction
-* @param {api.InsuranceViewPatientData} InsuranceViewPatientData
-* @transaction
-*/
-function InsuranceViewPatientData(insurancePatientData) {
-    if (insurancePatientData.insurance.clients.includes(insurancePatientData.patient)) {
-        return getAssetRegistry('api.EHR')
-            .then(function (ehrRegistry) {
-                return ehrRegistry.get(insurancePatientData.patient.ehr);
-            });
-    } else {
-        throw new Error("Access Denied");
-    }
 }
 
 /**
@@ -126,13 +81,22 @@ function InsuranceViewPatientData(insurancePatientData) {
 * @transaction
 */
 function DoctorUpdatePatientData(EHRData) {
-    if (EHRData.doctor.patients.includes(patient)) {
-        EHRData.patient.ehr.ehrID = EHRData.patient.ehr.ehrID;
-        EHRData.patient.ehr.patientId = EHRData.patient.patientId;
-        EHRData.patient.ehr.age = EHRData.age;
-        EHRData.patient.ehr.diagnosis = EHRData.diagnosis;
-        EHRData.patient.ehr.notes = EHRData.notes;
-        EHRData.patient.ehr.otherdata = EHRData.otherdata;
+    if (EHRData.patient.doctors.indexOf(EHRData.doctor.doctorInfo) > -1) {
+        if (EHRData.prescription !== "") {
+            EHRData.patient.ehr.prescription = EHRData.prescription;
+        }
+        if (EHRData.age !== "") {
+            EHRData.patient.ehr.age = EHRData.age;
+        }
+        if (EHRData.diagnosis !== "") {
+            EHRData.patient.ehr.diagnosis = EHRData.diagnosis;
+        }
+        if (EHRData.notes !== "") {
+            EHRData.patient.ehr.notes = EHRData.notes;
+        }
+        if (EHRData.otherdata !== "") {
+            EHRData.patient.ehr.otherdata = EHRData.otherdata;
+        }
         return getAssetRegistry('api.EHR')
             .then(function (ehrRegistry) {
                 return ehrRegistry.update(EHRData.patient.ehr);

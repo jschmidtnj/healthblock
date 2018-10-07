@@ -81,3 +81,9 @@ config.json
 
 # remove dist
 frontend-app/dist/
+
+# any .bna file
+*.bna
+
+# any card file
+*.card

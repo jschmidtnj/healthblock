@@ -208,7 +208,7 @@ function InsuranceViewPatientData(insurancePatientData) {
 function DoctorUpdatePatientData(EHRData) {
     if (EHRData.doctor.patients.includes(patient)) {
         EHRData.patient.ehr = {
-            ehrID: EHRData.patient.ehr.ehrID,
+            ehrId: EHRData.patient.ehr.ehrId,
             patientId: EHRData.patient.patientId,
             age: EHRData.age,
             prescription: EHRData.prescription,

@@ -17,34 +17,35 @@
  */
 
 namespace api
-asset View identified by viewID {
-o String viewID
---> EHR ehr
-o String timestamp
-o String usertype
-o String userid
-}
-asset EHR identified by ehrID {
-o String ehrID
-o String patientId
+asset EHR identified by ehrId {
+o String ehrId
 o Integer age
 o String prescription
 o String diagnosis
 o String notes
 o String otherdata
 }
-participant Patient identified by patientId {
-o String patientId
+asset PatientInfo identified by patientInfoId {
+o String patientInfoId
 o String firstName
 o String lastName
+}
+asset DoctorInfo identified by doctorInfoId {
+o String doctorInfoId
+o String doctorIdStr
+o String firstName
+o String lastName
+}
+participant Patient identified by patientId {
+o String patientId
+--> PatientInfo patientInfo
 --> Insurance insurance
-o Doctor[] doctorAccess
+o DoctorInfo[] doctors
 --> EHR ehr
 }
 participant Doctor identified by doctorId {
 o String doctorId
-o String firstName
-o String lastName
+--> DoctorInfo doctorInfo
 o Patient[] patients
 }
 participant Insurance identified by insuranceId {
@@ -59,22 +60,11 @@ transaction ChangeInsurance {
 }
 transaction RemoveDoctorViewAccess {
 --> Patient patient
---> Doctor doctor
+--> DoctorInfo doctorInfo
 }
 transaction AddDoctorViewAccess {
 --> Patient patient
 --> Doctor doctor
-}
-transaction PatientViewPatientData {
---> Patient patient
-}
-transaction DoctorViewPatientData {
---> Patient patient
---> Doctor doctor
-}
-transaction InsuranceViewPatientData {
---> Patient patient
---> Insurance insurance
 }
 transaction DoctorUpdatePatientData {
 --> Patient patient
