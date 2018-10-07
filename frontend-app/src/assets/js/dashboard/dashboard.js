@@ -125,13 +125,13 @@ $(document).ready(function () {
     $("#notifications").on("click", "#approve1", function(event){
         event.preventDefault();
         var parent = $(event.target.hash).parent()
-        console.log(parent)
+        console.log("approve")
     })
 
     $("#notifications").on("click", "#reject1", function(event){
         event.preventDefault();
         var parent = $(event.target).parent()
-        console.log(parent)
+        console.log("reject")
     })
 
 //event for doctor request data
