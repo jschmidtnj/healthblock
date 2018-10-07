@@ -1,26 +1,13 @@
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 'use strict';
+
 /**
- * Write your transction processor functions here
- */
-
-
+* Sample transaction
+* @param {api.ChangeInsurance} ChangeInsurance
+* @transaction
+*/
 function ChangeInsurance(changeInsurance) {
-    if (!(changeInsurance.newInsurance.currentPatients.includes(changeInsurance.patient))) {
-        changeInsurance.newInsurance.currentPatients.append(changeInsurance.patient);
+    if (!(changeInsurance.newInsurance.clients.includes(changeInsurance.patient))) {
+        changeInsurance.newInsurance.clients.push(changeInsurance.patient);
     }
     changeInsurance.patient.insurance = changeInsurance.newInsurance;
     return getParticipantRegistry('api.Patient')
@@ -35,6 +22,11 @@ function ChangeInsurance(changeInsurance) {
         });
 }
 
+/**
+* Sample transaction
+* @param {api.RemoveDoctorViewAccess} RemoveDoctorViewAccess
+* @transaction
+*/
 function RemoveDoctorViewAccess(doctorView) {
     var doctorAccessIndex = doctorView.patient.doctorAccess.indexOf(doctorView.doctor);
     if (doctorAccessIndex > -1) {
@@ -56,12 +48,17 @@ function RemoveDoctorViewAccess(doctorView) {
         });
 }
 
+/**
+* Sample transaction
+* @param {api.AddDoctorViewAccess} AddDoctorViewAccess
+* @transaction
+*/
 function AddDoctorViewAccess(doctorView) {
     if (!(doctorView.patient.doctorAccess.includes(doctorView.doctor))) {
-        doctorView.patient.doctorAccess.append(doctorView.doctor);
+        doctorView.patient.doctorAccess.push(doctorView.doctor);
     }
     if (!(doctorView.doctor.patients.includes(doctorView.patient))) {
-        doctorView.doctor.patients.append(doctorView.patient);
+        doctorView.doctor.patients.push(doctorView.patient);
     }
     return getParticipantRegistry('api.Patient')
         .then(function (patientRegistry) {
@@ -75,19 +72,27 @@ function AddDoctorViewAccess(doctorView) {
         });
 }
 
+/**
+* Sample transaction
+* @param {api.PatientViewPatientData} PatientViewPatientData
+* @transaction
+*/
 function PatientViewPatientData(patientData) {
-    var currentTime = Date.now().toString();
-    var newView = {
-        timestamp: currentTime,
-        usertype: "patient",
-        ehr: patientData.patient.ehr,
-        userid: patientData.patient
-    };
-    patientData.patient.ehr.views.push(newView);
-    patientData.patient.views.push(newView);
     return getAssetRegistry('api.View')
         .then(function (viewRegistry) {
-            return viewRegistry.put(newView);
+            var factory = getFactory();
+            var currentTime = Date.now().toString();
+            var numViews = patientData.patient.views.length;
+            var newviewID = "view" + (numViews + 1).toString();
+            var newView = factory.newResource('api', 'View', newviewID);
+            newView.viewID = newviewID;
+            newView.timestamp = currentTime;
+            newView.usertype = "patient";
+            newView.ehr = patientData.patient.ehr;
+            newView.userid = patientData.patient.patientId;
+            patientData.patient.ehr.views.push(newView);
+            patientData.patient.views.push(newView);
+            return viewRegistry.add(newView);
         })
         .then(function () {
             return getAssetRegistry('api.EHR');
@@ -107,20 +112,28 @@ function PatientViewPatientData(patientData) {
         });
 }
 
+/**
+* Sample transaction
+* @param {api.DoctorViewPatientData} DoctorViewPatientData
+* @transaction
+*/
 function DoctorViewPatientData(doctorPatientData) {
     if (doctorPatientData.doctor.patients.includes(doctorPatientData.patient)) {
-        var currentTime = Date.now().toString();
-        var newView = {
-            timestamp: currentTime,
-            usertype: "doctor",
-            ehr: doctorPatientData.patient.ehr,
-            userid: doctorPatientData.doctor
-        };
-        doctorPatientData.patient.ehr.views.push(newView);
-        doctorPatientData.doctor.views.push(newView);
         return getAssetRegistry('api.View')
             .then(function (viewRegistry) {
-                return viewRegistry.put(newView);
+                var factory = getFactory();
+                var currentTime = Date.now().toString();
+                var numViews = doctorPatientData.doctor.views.length;
+                var newviewID = "view" + (numViews + 1).toString();
+                var newView = factory.newResource('api', 'View', newviewID);
+                newView.viewID = newviewID;
+                newView.timestamp = currentTime;
+                newView.usertype = "doctor";
+                newView.ehr = doctorPatientData.patient.ehr;
+                newView.userid = doctorPatientData.doctor.doctorId;
+                doctorPatientData.patient.ehr.views.push(newView);
+                doctorPatientData.doctor.views.push(newView);
+                return viewRegistry.add(newView);
             })
             .then(function () {
                 return getAssetRegistry('api.EHR');
@@ -139,24 +152,32 @@ function DoctorViewPatientData(doctorPatientData) {
                 return ehrRegistry.get(doctorPatientData.patient.ehr);
             });
     } else {
-        throw new Error ("Access Denied");
+        throw new Error("Access Denied");
     }
 }
 
+/**
+* Sample transaction
+* @param {api.InsuranceViewPatientData} InsuranceViewPatientData
+* @transaction
+*/
 function InsuranceViewPatientData(insurancePatientData) {
     if (insurancePatientData.insurance.clients.includes(insurancePatientData.patient)) {
-        var currentTime = Date.now().toString();
-        var newView = {
-            timestamp: currentTime,
-            usertype: "doctor",
-            ehr: doctorPatientData.patient.ehr,
-            userid: doctorPatientData.doctor
-        };
-        insurancePatientData.patient.ehr.views.push(newView);
-        insurancePatientData.insurance.views.push(newView);
         return getAssetRegistry('api.View')
             .then(function (viewRegistry) {
-                return viewRegistry.put(newView);
+                var factory = getFactory();
+                var currentTime = Date.now().toString();
+                var numViews = insurancePatientData.insurance.views.length;
+                var newviewID = "view" + (numViews + 1).toString();
+                var newView = factory.newResource('api', 'View', newviewID);
+                newView.viewID = newviewID;
+                newView.timestamp = currentTime;
+                newView.usertype = "insurance";
+                newView.ehr = insurancePatientData.patient.ehr;
+                newView.userid = insurancePatientData.insurance.insuranceId;
+                insurancePatientData.patient.ehr.views.push(newView);
+                insurancePatientData.insurance.views.push(newView);
+                return viewRegistry.add(newView);
             })
             .then(function () {
                 return getAssetRegistry('api.EHR');
@@ -175,20 +196,26 @@ function InsuranceViewPatientData(insurancePatientData) {
                 return ehrRegistry.get(insurancePatientData.patient.ehr);
             });
     } else {
-        throw new Error ("Access Denied");
+        throw new Error("Access Denied");
     }
 }
 
+/**
+* Sample transaction
+* @param {api.DoctorUpdatePatientData} DoctorUpdatePatientData
+* @transaction
+*/
 function DoctorUpdatePatientData(EHRData) {
     if (EHRData.doctor.patients.includes(patient)) {
         EHRData.patient.ehr = {
+            ehrID: EHRData.patient.ehr.ehrID,
+            patientId: EHRData.patient.patientId,
             age: EHRData.age,
             prescription: EHRData.prescription,
             diagnosis: EHRData.diagnosis,
             notes: EHRData.notes,
             otherdata: EHRData.otherdata,
-            views: [],
-            patient: EHRData.patient
+            views: []
         };
         doctorPatientData.patient.ehr.views.push(newView);
         doctorPatientData.doctor.views.push(newView);
@@ -197,6 +224,6 @@ function DoctorUpdatePatientData(EHRData) {
                 return ehrRegistry.update(EHRData.patient.ehr);
             });
     } else {
-        throw new Error ("Access Denied");
+        throw new Error("Access Denied");
     }
 }

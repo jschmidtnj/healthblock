@@ -2,11 +2,11 @@
   "engines": {
     "composer": "^0.20.1"
   },
-  "name": "blockchain-api",
+  "name": "api17",
   "version": "0.0.1",
   "description": "Main Blockchain Database API",
   "scripts": {
-    "prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/blockchain-api.bna",
+    "prepublish": "mkdirp ./dist && composer archive create --sourceType dir --sourceName . -a ./dist/api.bna",
     "pretest": "npm run lint",
     "lint": "eslint .",
     "test": "nyc mocha -t 0 test/*.js && cucumber-js"

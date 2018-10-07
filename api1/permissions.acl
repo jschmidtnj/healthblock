@@ -11,19 +11,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
-'use strict';
 
-const composerSteps = require('composer-cucumber-steps');
-const cucumber = require('cucumber');
-
-module.exports = function () {
-    composerSteps.call(this);
-};
-
-if (cucumber.defineSupportCode) {
-    cucumber.defineSupportCode((context) => {
-        module.exports.call(context);
-    });
+rule NetworkAdminUser {
+    description: "Grant business network administrators full access to user resources"
+    participant: "org.hyperledger.composer.system.NetworkAdmin"
+    operation: ALL
+    resource: "**"
+    action: ALLOW
 }
-*/
+
+rule NetworkAdminSystem {
+    description: "Grant business network administrators full access to system resources"
+    participant: "org.hyperledger.composer.system.NetworkAdmin"
+    operation: ALL
+    resource: "org.hyperledger.composer.system.**"
+    action: ALLOW
+}
