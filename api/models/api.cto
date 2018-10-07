@@ -26,34 +26,31 @@ o String userid
 }
 asset EHR identified by ehrID {
 o String ehrID
+o String patientId
 o Integer age
 o String prescription
 o String diagnosis
 o String notes
 o String otherdata
-o View[] views
 }
 participant Patient identified by patientId {
 o String patientId
 o String firstName
 o String lastName
-o View[] views
 --> Insurance insurance
 o Doctor[] doctorAccess
---> EHR[] ehr
+--> EHR ehr
 }
 participant Doctor identified by doctorId {
 o String doctorId
 o String firstName
 o String lastName
-o View[] views
 o Patient[] patients
 }
 participant Insurance identified by insuranceId {
 o String insuranceId
 o String firstName
 o String lastName
-o View[] views
 o Patient[] clients
 }
 transaction ChangeInsurance {
